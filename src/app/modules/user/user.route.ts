@@ -1,9 +1,30 @@
-import { Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import { UserControllers } from "./user.controller";
+import z, { AnyZodObject, object } from "zod";
+import { createUserZodSchema } from "./user.validation";
+import { validateRequest } from "../../middlewires/validateRequest";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import httpStatus from "http-status-codes";
+import AppError from "../../errorHelpers/AppError";
+import { Role } from "./user.interface";
+import { verifyToken } from "../../utils/jwt";
+import { envVars } from "../../config/env";
+import { checkAuth } from "../../middlewires/checkAuth";
 
-const router = Router()
+const router = Router();
 
-router.post("/register",UserControllers.createUser)
-router.get("/all-users",UserControllers.getAllUsers)
 
-export const UserRoutes = router
+
+router.post(
+  "/register",
+  validateRequest(createUserZodSchema),
+  UserControllers.createUser
+);
+
+router.patch("/:id",checkAuth(...Object.values(Role)),UserControllers.updateUser)
+
+router.get(
+  "/all-users",checkAuth(Role.ADMIN,Role.SUPER_ADMIN), UserControllers.getAllUsers
+);
+
+export const UserRoutes = router;
