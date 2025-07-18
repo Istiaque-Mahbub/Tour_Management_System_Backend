@@ -6,6 +6,7 @@ import bcryptjs from "bcryptjs"
 import jwt from "jsonwebtoken"
 import { envVars } from "../../config/env"
 import { generateToken } from "../../utils/jwt"
+import { createUserTokens } from "../../utils/userTokens"
 
 const credentialLogin = async(payload : Partial<IUser>) =>{
    const {email,password} = payload
@@ -21,24 +22,26 @@ const credentialLogin = async(payload : Partial<IUser>) =>{
    if(!isPasswordMatch){
     throw new AppError (httpStatus.BAD_REQUEST,"Incorrect password")
    }
-   const jwtPayload ={
-    userID : isExist._id,
-    email: isExist.email,
-    role: isExist.role
-   }
+   // const jwtPayload ={
+   //  userID : isExist._id,
+   //  email: isExist.email,
+   //  role: isExist.role
+   // }
 
 //    const accessToken = jwt.sign(jwtPayload,"secret",{
 //     expiresIn:"1d"
 //    })
-   const accessToken = generateToken(jwtPayload,envVars.JWT_ACCESS_SECRET,envVars.JWT_ACCESS_EXPIRES)
+   // const accessToken = generateToken(jwtPayload,envVars.JWT_ACCESS_SECRET,envVars.JWT_ACCESS_EXPIRES)
 
-   const refreshToken = generateToken(jwtPayload,envVars.JWT_REFRESH_SECRET,envVars.JWT_REFRESH_EXPIRES)
+   // const refreshToken = generateToken(jwtPayload,envVars.JWT_REFRESH_SECRET,envVars.JWT_REFRESH_EXPIRES)
+
+   const userTokens = createUserTokens(isExist)
 
    const {password : pass,...rest} = isExist.toObject()
 
    return{
-    accessToken,
-    refreshToken,
+    accessToken:userTokens.accessToken,
+    refreshToken:userTokens.refreshToken,
     user:rest
    }
 }
