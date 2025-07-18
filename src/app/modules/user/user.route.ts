@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { UserControllers } from "./user.controller";
 import z, { AnyZodObject, object } from "zod";
-import { createUserZodSchema } from "./user.validation";
+import { createUserZodSchema, updateUserZodSchema } from "./user.validation";
 import { validateRequest } from "../../middlewires/validateRequest";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import httpStatus from "http-status-codes";
@@ -24,7 +24,7 @@ router.post(
 router.patch("/:id",checkAuth(...Object.values(Role)),UserControllers.updateUser)
 
 router.get(
-  "/all-users",checkAuth(Role.ADMIN,Role.SUPER_ADMIN), UserControllers.getAllUsers
+  "/all-users",validateRequest(updateUserZodSchema),checkAuth(Role.ADMIN,Role.SUPER_ADMIN), UserControllers.getAllUsers
 );
 
 export const UserRoutes = router;
