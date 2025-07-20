@@ -1,12 +1,12 @@
 import AppError from "../../errorHelpers/AppError"
-import { IUser } from "../user/user.interface"
+import { isActive, IUser } from "../user/user.interface"
 import { User } from "../user/user.model"
 import httpStatus from "http-status-codes"
 import bcryptjs from "bcryptjs"
-import jwt from "jsonwebtoken"
+import jwt, { JwtPayload, verify } from "jsonwebtoken"
 import { envVars } from "../../config/env"
-import { generateToken } from "../../utils/jwt"
-import { createUserTokens } from "../../utils/userTokens"
+import { generateToken, verifyToken } from "../../utils/jwt"
+import { createNewAccessTokenWithRefreshToken, createUserTokens } from "../../utils/userTokens"
 
 const credentialLogin = async(payload : Partial<IUser>) =>{
    const {email,password} = payload
@@ -46,6 +46,15 @@ const credentialLogin = async(payload : Partial<IUser>) =>{
    }
 }
 
+const getNewAccessToken = async(refreshToken:string) =>{
+   const newAccessToken = await createNewAccessTokenWithRefreshToken(refreshToken)
+   return{
+    accessToken:newAccessToken,
+   
+   }
+}
+
 export const AuthServices = {
-    credentialLogin
+    credentialLogin,
+    getNewAccessToken
 }
