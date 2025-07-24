@@ -8,12 +8,42 @@ import { JwtPayload } from "jsonwebtoken"
 import { createUserTokens } from "../../utils/userTokens"
 import AppError from "../../errorHelpers/AppError"
 import { envVars } from "../../config/env"
+import passport from "passport"
 
 
 
 const credentialLogin = catchAsync(async(req:Request,res:Response,next:NextFunction)=>{
 
-    const loginInfo = await AuthServices.credentialLogin(req.body)
+    passport.authenticate("local",async(err:any,user:any,info:any)=>{
+
+        if(err){
+            return next(err)
+        }
+
+        if(!user){
+            return next(new AppError(httpStatus.NOT_FOUND,info.message))
+        }
+
+        const userTokens = await createUserTokens(user)
+
+        delete user.toObject().password
+
+        const {password:pass,...rest}=user.toObject()
+
+        setAuthCookie(res,userTokens)
+         sendResponse(res,{
+        success:true,
+        statusCode:httpStatus.OK,
+        message:"User logged on successfully",
+        data:{
+            accessToken:userTokens.accessToken,
+            refreshToken:userTokens.refreshToken,
+            user:rest
+        }
+    })
+    })(req,res,next)
+
+    // const loginInfo = await AuthServices.credentialLogin(req.body)
 
     // res.cookie("accessToken",loginInfo.accessToken,{
     //     httpOnly:true,
@@ -22,19 +52,19 @@ const credentialLogin = catchAsync(async(req:Request,res:Response,next:NextFunct
 
     // setAuthCookie(res,loginInfo)
 
-    setAuthCookie(res,loginInfo)
+    // setAuthCookie(res,loginInfo)
  
     // res.cookie("refreshToken",loginInfo.refreshToken,{
     //     httpOnly:true,
     //     secure:false
     // })
 
-    sendResponse(res,{
-        success:true,
-        statusCode:httpStatus.OK,
-        message:"User logged on successfully",
-        data:loginInfo
-    })
+    // sendResponse(res,{
+    //     success:true,
+    //     statusCode:httpStatus.OK,
+    //     message:"User logged on successfully",
+    //     data:loginInfo
+    // })
 })
 
 const getNewAccessToken = catchAsync(async(req:Request,res:Response,next:NextFunction)=>{

@@ -14,7 +14,7 @@ import "./app/config/passport"
 const app = express()
 
 app.use(expressSession({
-    secret:"Your secret",
+    secret:envVars.EXPRESS_SESSION,
     saveUninitialized:false,
     resave:false
 }))
