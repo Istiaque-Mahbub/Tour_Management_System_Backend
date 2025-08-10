@@ -21,7 +21,7 @@ router.post(
   UserControllers.createUser
 );
 
-router.patch("/:id",checkAuth(...Object.values(Role)),UserControllers.updateUser)
+router.patch("/:id",checkAuth(...Object.values(Role)),validateRequest(updateUserZodSchema),UserControllers.updateUser)
 
 router.get(
   "/all-users",validateRequest(updateUserZodSchema),checkAuth(Role.ADMIN,Role.SUPER_ADMIN), UserControllers.getAllUsers

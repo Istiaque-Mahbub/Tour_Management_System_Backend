@@ -40,7 +40,8 @@ const userSchema = new Schema<IUser>({
         type:Boolean,
         default:false
     },
-    auths:[authProviderSchema]
+    auths:[authProviderSchema],
+    address:{type:String}
 
 },{
     timestamps:true,
